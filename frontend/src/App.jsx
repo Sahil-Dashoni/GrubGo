@@ -24,6 +24,7 @@ import Shop from './pages/Shop'
 import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 import { setSocket } from './redux/userSlice'
+import ChatBot from './components/ChatBot'
 
 export const serverUrl="http://localhost:8000"
 function App() {
@@ -51,6 +52,7 @@ return ()=>{
   },[userData?._id])
 
   return (
+    <>
    <Routes>
     <Route path='/signup' element={!userData?<SignUp/>:<Navigate to={"/"}/>}/>
     <Route path='/signin' element={!userData?<SignIn/>:<Navigate to={"/"}/>}/>
@@ -66,6 +68,8 @@ return ()=>{
 <Route path='/track-order/:orderId' element={userData?<TrackOrderPage/>:<Navigate to={"/signin"}/>}/>
 <Route path='/shop/:shopId' element={userData?<Shop/>:<Navigate to={"/signin"}/>}/>
    </Routes>
+   <ChatBot/>
+   </>
   )
 }
 
