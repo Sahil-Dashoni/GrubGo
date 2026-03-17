@@ -1,22 +1,19 @@
-import nodemailer from "nodemailer"
+import SibApiV3Sdk from '@getbrevo/brevo';
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+const apiKey = apiInstance.authentications['apiKey'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
 import dotenv from "dotenv"
 dotenv.config()
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASS,
-  },
-  connectionTimeout: 10000, // 10 sec
-});
+
 
 export const sendOtpMail = async (to, otp) => {
     try {
-        const info = await transporter.sendMail({
-            from: process.env.EMAIL,
-            to,
+        await apiInstance.sendTransacEmail({
+            sender: { email: process.env.EMAIL },
+            to: [{ email: to }],
             subject: "Reset Your Password",
             html:`<p>Your OTP for password reset is <b>${otp}</b>. It expires in 5 minutes.</p>`
         });
@@ -24,17 +21,22 @@ export const sendOtpMail = async (to, otp) => {
         console.log("MAIL SENT:", info.response);
 
     } catch (error) {
-        console.log("MAIL ERROR:", error); // 🔥 THIS WILL SHOW REAL ERROR
+        console.log("MAIL ERROR:", error); 
         throw error;
     }
 };
 
 
 export const sendDeliveryOtpMail=async (user,otp) => {
-    await transporter.sendMail({
-        from:process.env.EMAIL,
-        to:user.email,
+    try {
+        await apiInstance.sendTransacEmail({
+            sender: { email: process.env.EMAIL },
+            to: [{ email: user.email }],
         subject:"Delivery OTP",
         html:`<p>Your OTP for delivery is <b>${otp}</b>. It expires in 5 minutes.</p>`
-    })
-}
+    });
+    } catch (error) {
+        console.log("MAIL ERROR:", error);
+    }
+};
+
