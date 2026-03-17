@@ -76,6 +76,19 @@ function UserOrderCard({ data }) {
                 </div>
             ))}
 
+            {data.shopOrders?.map((shopOrder, index) => (
+                shopOrder.videoUrl && (
+                    <div key={index} className='border-t pt-3'>
+                        <p className='font-semibold text-sm mb-2'>Order Verification Video:</p>
+                        <video
+                            src={shopOrder.videoUrl}
+                            controls
+                            className='w-full max-h-64 object-contain bg-black rounded-lg'
+                        />
+                    </div>
+                )
+            ))}
+
             <div className='flex justify-between items-center border-t pt-2'>
                 <p className='font-semibold'>Total: ₹{data.totalAmount}</p>
                 <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm' onClick={() => navigate(`/track-order/${data._id}`)}>Track Order</button>

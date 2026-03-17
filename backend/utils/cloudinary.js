@@ -7,9 +7,12 @@ const uploadOnCloudinary = async (file) => {
         api_secret: process.env.CLOUDINARY_API_SECRET
     });
     try {
-        const result = await cloudinary.uploader.upload(file)
+        const result = await cloudinary.uploader.upload(file, { resource_type: "video" })
         fs.unlinkSync(file)
-        return result.secure_url
+        return {
+            url: result.secure_url,
+            public_id: result.public_id
+        }
     } catch (error) {
         fs.unlinkSync(file)
         console.log(error)

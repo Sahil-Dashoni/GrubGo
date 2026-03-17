@@ -6,12 +6,50 @@ import { sendDeliveryOtpMail } from "../utils/mail.js"
 import RazorPay from "razorpay"
 import dotenv from "dotenv"
 import { count } from "console"
+import uploadOnCloudinary from "../utils/cloudinary.js"
 
 dotenv.config()
 let instance = new RazorPay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
+export const uploadOrderVideo = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findById(orderId);
+
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        if (!req.file) {
+            return res.status(400).json({ message: "No video file provided" });
+        }
+
+        const result = await uploadOnCloudinary(req.file.path);
+
+        const shopOrder = order.shopOrders.find(
+            so => String(so.owner) === String(req.userId)
+        );
+
+        if (!shopOrder) {
+            return res.status(400).json({ message: "Shop order not found" });
+        }
+
+        shopOrder.videoUrl = result.url;
+        shopOrder.videoPublicId = result.public_id;
+
+        await order.save();
+
+        return res.status(200).json({
+            message: "Video uploaded successfully",
+            videoUrl: result.url
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: error.message });
+    }
+};
 
 export const placeOrder = async (req, res) => {
     try {
@@ -277,7 +315,7 @@ export const updateOrderStatus = async (req, res) => {
                     const boySocketId = boy.socketId
                     if (boySocketId) {
                         io.to(boySocketId).emit('newAssignment', {
-                            sentTo:boy._id,
+                            sentTo: boy._id,
                             assignmentId: deliveryAssignment._id,
                             orderId: deliveryAssignment.order._id,
                             shopName: deliveryAssignment.shop.name,
@@ -519,6 +557,7 @@ export const verifyDeliveryOtp = async (req, res) => {
 
         shopOrder.status = "delivered"
         shopOrder.deliveredAt = Date.now()
+        shopOrder.videoExpiresAt = new Date(Date.now() + 4 * 60 * 1000) // 4 mins
         await order.save()
         await DeliveryAssignment.deleteOne({
             shopOrderId: shopOrder._id,
@@ -533,51 +572,51 @@ export const verifyDeliveryOtp = async (req, res) => {
     }
 }
 
-export const getTodayDeliveries=async (req,res) => {
+export const getTodayDeliveries = async (req, res) => {
     try {
-        const deliveryBoyId=req.userId
-        const startsOfDay=new Date()
-        startsOfDay.setHours(0,0,0,0)
+        const deliveryBoyId = req.userId
+        const startsOfDay = new Date()
+        startsOfDay.setHours(0, 0, 0, 0)
 
-        const orders=await Order.find({
-           "shopOrders.assignedDeliveryBoy":deliveryBoyId,
-           "shopOrders.status":"delivered",
-           "shopOrders.deliveredAt":{$gte:startsOfDay}
+        const orders = await Order.find({
+            "shopOrders.assignedDeliveryBoy": deliveryBoyId,
+            "shopOrders.status": "delivered",
+            "shopOrders.deliveredAt": { $gte: startsOfDay }
         }).lean()
 
-     let todaysDeliveries=[] 
-     
-     orders.forEach(order=>{
-        order.shopOrders.forEach(shopOrder=>{
-            if(shopOrder.assignedDeliveryBoy==deliveryBoyId &&
-                shopOrder.status=="delivered" &&
-                shopOrder.deliveredAt &&
-                shopOrder.deliveredAt>=startsOfDay
-            ){
-                todaysDeliveries.push(shopOrder)
-            }
+        let todaysDeliveries = []
+
+        orders.forEach(order => {
+            order.shopOrders.forEach(shopOrder => {
+                if (shopOrder.assignedDeliveryBoy == deliveryBoyId &&
+                    shopOrder.status == "delivered" &&
+                    shopOrder.deliveredAt &&
+                    shopOrder.deliveredAt >= startsOfDay
+                ) {
+                    todaysDeliveries.push(shopOrder)
+                }
+            })
         })
-     })
 
-let stats={}
+        let stats = {}
 
-todaysDeliveries.forEach(shopOrder=>{
-    const hour=new Date(shopOrder.deliveredAt).getHours()
-    stats[hour]=(stats[hour] || 0) + 1
-})
+        todaysDeliveries.forEach(shopOrder => {
+            const hour = new Date(shopOrder.deliveredAt).getHours()
+            stats[hour] = (stats[hour] || 0) + 1
+        })
 
-let formattedStats=Object.keys(stats).map(hour=>({
- hour:parseInt(hour),
- count:stats[hour]   
-}))
+        let formattedStats = Object.keys(stats).map(hour => ({
+            hour: parseInt(hour),
+            count: stats[hour]
+        }))
 
-formattedStats.sort((a,b)=>a.hour-b.hour)
+        formattedStats.sort((a, b) => a.hour - b.hour)
 
-return res.status(200).json(formattedStats)
-  
+        return res.status(200).json(formattedStats)
+
 
     } catch (error) {
-        return res.status(500).json({ message: `today deliveries error ${error}` }) 
+        return res.status(500).json({ message: `today deliveries error ${error}` })
     }
 }
 
