@@ -9,7 +9,6 @@
   "author": "Sahil Dashoni",
   "license": "ISC",
   "dependencies": {
-    "@getbrevo/brevo": "^5.0.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
