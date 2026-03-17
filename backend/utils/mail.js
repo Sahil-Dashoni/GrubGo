@@ -5,9 +5,6 @@ const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 const apiKey = apiInstance.authentications['apiKey'];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
-import dotenv from "dotenv"
-dotenv.config()
-
 
 export const sendOtpMail = async (to, otp) => {
     try {
