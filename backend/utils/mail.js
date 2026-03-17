@@ -1,6 +1,6 @@
-import * as brevo from "@getbrevo/brevo";
-brevo.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-const client = new brevo.TransactionalEmailsApi();
+import * as brevo from "@getbrevo/brevo"; 
+const client = new brevo.TransactionalEmailsApi(); 
+client.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 
 export const sendOtpMail = async (to, otp) => {
