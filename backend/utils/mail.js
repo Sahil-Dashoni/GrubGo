@@ -1,6 +1,6 @@
-import * as Brevo from "@getbrevo/brevo";
+import { BrevoClient } from "@getbrevo/brevo"; 
 
-const client = new Brevo.TransactionalEmailsApi();
+const client = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
 
 client.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
@@ -9,7 +9,7 @@ client.setApiKey(
 
 export const sendOtpMail = async (to, otp) => {
   try {
-    await client.sendTransacEmail({
+    await client.transactionalEmails.sendTransacEmail({
       sender: { email: process.env.EMAIL },
       to: [{ email: to }],
       subject: "Reset Password",
@@ -26,7 +26,7 @@ export const sendOtpMail = async (to, otp) => {
 
 export const sendDeliveryOtpMail = async (user, otp) => {
   try {
-    await client.sendTransacEmail({
+    await client.transactionalEmails.sendTransacEmail({
       sender: { email: process.env.EMAIL },
       to: [{ email: user.email }],
       subject: "Delivery OTP",
