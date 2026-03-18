@@ -19,7 +19,7 @@ cron.schedule("*/1 * * * *", async () => {
                     shopOrder.videoExpiresAt &&
                     shopOrder.videoExpiresAt <= now
                 ) {
-                    // 🔥 DELETE FROM CLOUDINARY
+                    // DELETE FROM CLOUDINARY
                     if (shopOrder.videoPublicId) {
                         await cloudinary.uploader.destroy(
                             shopOrder.videoPublicId,
@@ -27,7 +27,7 @@ cron.schedule("*/1 * * * *", async () => {
                         );
                     }
 
-                    // 🔥 DELETE FROM DB
+                    // DELETE FROM DB
                     shopOrder.videoUrl = "";
                     shopOrder.videoPublicId = "";
                     shopOrder.videoExpiresAt = null;
@@ -39,7 +39,7 @@ cron.schedule("*/1 * * * *", async () => {
             if (updated) await order.save();
         }
 
-        console.log("🧹 Videos cleaned");
+        console.log(" Videos cleaned");
 
     } catch (error) {
         console.log("CRON ERROR:", error);

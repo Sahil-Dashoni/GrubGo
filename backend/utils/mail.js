@@ -18,7 +18,7 @@ export const sendOtpMail = async (to, otp) => {
             }
         );
 
-        console.log("MAIL SENT ✅", response.data);
+        console.log("MAIL SENT ", response.data);
 
     } catch (error) {
         console.log("BREVO ERROR:", error.response?.data || error.message);
@@ -44,7 +44,7 @@ export const sendDeliveryOtpMail = async (user, otp) => {
             }
         );
 
-        console.log("MAIL SENT ✅", response.data);
+        console.log("MAIL SENT ", response.data);
 
     } catch (error) {
         console.log("BREVO ERROR:", error.response?.data || error.message);
