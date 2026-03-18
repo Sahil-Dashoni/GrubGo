@@ -31,7 +31,7 @@ const ChatBot = () => {
         try {
             const response = await axios.post("https://n8n.n8n-cloud.live/webhook/mychatapp", {
                 message: userMessage,
-                sessionId: userData?._id || "guest_user" // Uses actual User ID for memory
+                sessionId: userData?._id || "guest_" + Date.now() // Uses actual User ID for memory
             });
 
             // n8n usually returns data in 'output' or 'message' property
