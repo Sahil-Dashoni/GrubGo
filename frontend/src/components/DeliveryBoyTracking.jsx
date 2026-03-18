@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import scooter from "../assets/scooter.png"
 import home from "../assets/home.png"
 import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet'
+import { useSelector } from 'react-redux'
 const deliveryBoyIcon = new L.Icon({
     iconUrl: scooter,
     iconSize: [40, 40],
